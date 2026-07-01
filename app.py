@@ -30,8 +30,7 @@ class Customer(BaseModel):
     monthly_charges: float = Field(..., ge=0, examples=[89.5])
     total_charges: float = Field(..., ge=0, examples=[450.0])
     contract_type: int = Field(..., ge=0, le=2, examples=[0],
-                               description="0=month-to-month, " \
-                               "1=one year, 2=two year")
+                               description="0=month-to-month, 1=one year, 2=two year")
     has_tech_support: int = Field(..., ge=0, le=1, examples=[0])
     has_online_security: int = Field(..., ge=0, le=1, examples=[0])
     is_electronic_check: int = Field(..., ge=0, le=1, examples=[1])

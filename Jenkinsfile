@@ -1,64 +1,63 @@
+:::writing{variant="document" id="68421"}
 pipeline {
-agent any
+    agent any
 
-```
-environment {
-    APP_NAME = "fastapi-app"
+    environment {
+        APP_NAME = "fastapi-app"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Setup Python') {
+            steps {
+                sh '''
+                python3 -m venv venv
+                source venv/bin/activate
+                pip install --upgrade pip
+                pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh '''
+                source venv/bin/activate
+                pytest
+                '''
+            }
+        }
+
+        stage('Start FastAPI Check') {
+            steps {
+                sh '''
+                source venv/bin/activate
+                timeout 10 uvicorn app:app --host 0.0.0.0 --port 8000
+                '''
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                docker build -t $APP_NAME .
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
 }
-
-stages {
-    stage('Checkout') {
-        steps {
-            checkout scm
-        }
-    }
-
-    stage('Setup Python') {
-        steps {
-            sh '''
-            python3 -m venv venv
-            source venv/bin/activate
-            pip install --upgrade pip
-            pip install -r requirements.txt
-            '''
-        }
-    }
-
-    stage('Run Tests') {
-        steps {
-            sh '''
-            source venv/bin/activate
-            pytest
-            '''
-        }
-    }
-
-    stage('Start FastAPI Check') {
-        steps {
-            sh '''
-            source venv/bin/activate
-            timeout 10 uvicorn app:app --host 0.0.0.0 --port 8000
-            '''
-        }
-    }
-
-    stage('Build Docker Image') {
-        steps {
-            sh '''
-            docker build -t $APP_NAME .
-            '''
-        }
-    }
-}
-
-post {
-    success {
-        echo 'Pipeline completed successfully!'
-    }
-    failure {
-        echo 'Pipeline failed!'
-    }
-}
-```
-
-}
+:::

@@ -35,7 +35,7 @@ pipeline {
         stage('Start FastAPI Check') {
             steps {
                 sh '''
-                source .venv/bin/activate
+                source venv/bin/activate
                 uvicorn app:app --host 0.0.0.0 --port 8000 &
                 sleep 5
                 kill $!

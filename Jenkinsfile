@@ -15,8 +15,8 @@ pipeline {
         stage('Setup Python') {
             steps {
                 sh '''
-                python3 -m venv .venv
-                source .venv/bin/activate
+                python3 -m venv venv
+                source venv/bin/activate
                 pip install --upgrade pip
                 pip install -r requirements.txt
                 '''
@@ -26,7 +26,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
-                source .venv/bin/activate
+                source venv/bin/activate
                 pytest
                 '''
             }
@@ -36,7 +36,9 @@ pipeline {
             steps {
                 sh '''
                 source .venv/bin/activate
-                timeout 10 uvicorn app:app --host 0.0.0.0 --port 8000
+                uvicorn app:app --host 0.0.0.0 --port 8000 &
+                sleep 5
+                kill $!
                 '''
             }
         }

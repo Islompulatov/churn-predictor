@@ -3,9 +3,11 @@ pipeline {
 
     environment {
         APP_NAME = "fastapi-app"
+        PATH = "/usr/local/bin:${env.PATH}"
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -36,9 +38,13 @@ pipeline {
             steps {
                 sh '''
                 source venv/bin/activate
+
                 uvicorn app:app --host 0.0.0.0 --port 8000 &
+                PID=$!
+
                 sleep 5
-                kill $!
+
+                kill $PID || true
                 '''
             }
         }
@@ -46,6 +52,10 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
+                echo "Docker path:"
+                which docker || true
+                docker --version
+
                 docker build -t $APP_NAME .
                 '''
             }
